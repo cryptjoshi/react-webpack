@@ -1,0 +1,80 @@
+version: '3'
+services:
+
+  # backend:
+  #   image: rentall:backend
+  #   container_name: backend
+  #   build:
+  #     context: ./backend
+  #   command: >
+  #     bash -c "
+  #     yarn install && yarn start"
+  #   volumes:
+  #     - ./backend:/app
+  #   ports:
+  #     - 4000:4000
+  #   env_file: .env
+  #   depends_on:
+  #     - db
+       
+
+  # frontend_dev:
+  #   image: frontend:rentcar
+  #   container_name: frontend
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: ./webpack/dev.Dockerfile
+  #   command: >
+  #     bash -c "
+  #     yarn install && yarn dev"
+  #   ports:
+  #     - ${WEBPACK_SERVER_PORT}:3000
+  #     - ${BROWSERSYNC_PORT}:3001
+  #   env_file: .env
+  #   volumes:
+  #     - ./frontend:/app
+  #   depends_on:
+  #     - db
+
+  # frontend:
+  #   image: frontend:rentcar
+  #   container_name: frontend
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: ./webpack/dev.Dockerfile
+  #   command: >
+  #     bash -c "
+  #     yarn install && yarn start"
+  #   ports:
+  #     - ${WEBPACK_SERVER_PORT}:3000
+  #     - ${BROWSERSYNC_PORT}:3002
+  #     - ${FRONTEND_PORT}:3001
+  #   env_file: .env
+  #   volumes:
+  #     - ./frontend:/app
+  #   depends_on:
+  #     - db
+
+  db:
+    image: mysql:5.7
+    container_name: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=rentall_cars_v_2_0
+    volumes:
+      - ./tmp:/var/lib/mysql
+      - ./frontend/db:/docker-entrypoint-initdb.d
+    ports:
+      - 3306:3306
+
+  pma:
+      container_name: phpmyadmin
+      image: phpmyadmin/phpmyadmin
+      restart: always
+      ports:
+         - "8181:80"
+      env_file: .env
+      depends_on:
+         - db
+      environment:
+         - PMA_HOST=db
