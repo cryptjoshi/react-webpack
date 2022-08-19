@@ -6,12 +6,13 @@ const AssetsPlugin = require('assets-webpack-plugin');
 const webpack = require('webpack');
 const smp = new SpeedMeasurePlugin();
 const outputDir = path.resolve(__dirname, '../build/public')
-const { ifDebug, config, cssLoaderLegacySupportPlugins, buildMode } = require('../tools/webpack.base')
+
+import { ifDebug } from '../tools/lib/utils';
+import {config,cssLoaderLegacySupportPlugins,buildMode} from '../tools/webpack.base';
 const { ESBuildMinifyPlugin } = require('esbuild-loader')
 const TerserPlugin = require("terser-webpack-plugin");
 import pkg from '../package.json'
-
-
+ 
 module.exports = smp.wrap({
     mode: config.mode,
     context: config.context,

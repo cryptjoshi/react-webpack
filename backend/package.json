@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "express": "^4.18.1"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.10",
+    "@babel/node": "^7.18.10",
+    "nodemon": "^2.0.19"
+  }
+}

@@ -1,12 +1,14 @@
 const webpack = require('webpack')
 const path = require('path')
-const { config, cssLoaderLegacySupportPlugins, buildMode } = require('../tools/webpack.base')
+import { config }  from '../tools/webpack.base'
+const {buildMode,cssLoaderLegacySupportPlugins} = require('../tools/webpack.base')
 const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
-const isDebug = true;
+import { ifDebug } from '../tools/lib/utils';
 const smp = new SpeedMeasurePlugin();
 import pkg from '../package.json'
 
-module.exports = smp.wrap({
+
+module.exports  =smp.wrap({
     mode: config.mode,
     context: config.context,
     name: 'server',
@@ -14,7 +16,9 @@ module.exports = smp.wrap({
     entry: {
         client: [
             'babel-polyfill',
-            './src/server.js',
+            // 'react-hot-loader/patch',
+            // 'webpack-hot-middleware/client',
+            './src/express.js',
         ]
     },
     output: {
@@ -34,48 +38,30 @@ module.exports = smp.wrap({
         },
     ],
     plugins: [
-        ...cssLoaderLegacySupportPlugins.plugins,
+       // cssLoaderLegacySupportPlugins.plugins,
+        new webpack.HotModuleReplacementPlugin(),
         new webpack.ProgressPlugin({ }),
         new webpack.DefinePlugin({
             'process.env.BROWSER': false,
-            'process.env.NODE_ENV': isDebug ? '"development"' : '"production"',
+            'process.env.NODE_ENV': ifDebug('"development"' ,'"production"'),
             'process.env.RENTALL_BUILD_MODE': `"${buildMode}"`,
-            __DEV__: isDebug,
+            __DEV__: ifDebug(),
+            __CLIENT__: !ifDebug(),
+            __SERVER__: ifDebug(),
         }),
+         new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+
+    // Adds a banner to the top of each generated chunk
+    // https://webpack.github.io/docs/list-of-plugins.html#bannerplugin
+    new webpack.BannerPlugin({
+      banner: 'require("source-map-support").install();',
+      raw: true,
+      entryOnly: false,
+    }),
     ],
     module: {
         rules: [
-            //...config.module.rules,
-            {
-                test: /\.js?$/,
-                include: [path.resolve(__dirname, "../src")],
-                exclude: /node_modules/,
-                use: {
-                  loader: "babel-loader",
-                  options: {
-                    //plugins: isDebug ? [require.resolve('react-refresh/babel')]:[],
-                    cacheDirectory: isDebug,
-                    babelrc: false,
-                    presets: [
-                      [
-                        "@babel/preset-env",
-                        {
-                          targets: {
-                            browsers: pkg.browserslist,
-                          },
-                          modules: false,
-                          useBuiltIns: false,
-                          debug: false,
-                        },
-                      ],
-                      "@babel/preset-react",
-        
-                      //    ...isDebug ? [] : ['react-optimize'],
-                    ],
-                  },
-                },
-              },
-              ...config.module.rules
+            ...config.module.rules,
         ]
     }
 })

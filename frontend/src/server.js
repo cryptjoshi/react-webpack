@@ -3,7 +3,7 @@ const path = require('path');
 const cons = require('consolidate');
 const fs = require('fs');
 const browserSync = require("browser-sync");
-const port = 5469;
+const port = 8080;
 const app = express();
 
 app.disable('x-powered-by');
