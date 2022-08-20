@@ -80,10 +80,27 @@ app.get('*', async (req, res, next) => {
     //    // data.scripts.push(assets.client.js);
     
     //     data.lang = locale;
+<<<<<<< Updated upstream
     
     //     const html = ReactDOM.renderToStaticMarkup(<Html {...data} />);
     //     res.status(200);
     //     res.send(`<!doctype html>${html}`);
+=======
+      //  const data = {
+      //   title:"React Webpack 5 SSR",
+      //   description:"React Web Template"
+      //  }
+
+      if (module.hot) {
+        console.log('HERE-0');
+       module.hot.accept('./App', () => {
+         console.log('HERE-1');
+       });
+      }
+         const html = ReactDOM.renderToStaticMarkup(<Html {...data} />);
+         res.status(200);
+         res.send(`<!doctype html>${html}`);
+>>>>>>> Stashed changes
       }
       catch(err) {
         next(err);
