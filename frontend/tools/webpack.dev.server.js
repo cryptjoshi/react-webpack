@@ -21,6 +21,7 @@ const serverConfig = require('../webpack5/webpack.server.config');
         // which already support react-hot-reload
         clientConfig.entry.client = [
             'webpack-hot-middleware/client',
+           // 'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000',
             ...clientConfig.entry.client
         ]
         clientConfig.plugins.push(
@@ -35,9 +36,9 @@ const serverConfig = require('../webpack5/webpack.server.config');
         publicPath: clientConfig.output.publicPath,
         writeToDisk: true,
     })
-   // const hotMiddle = webpackHotMiddleware(webpackBundler.compilers[0], {});
+   
      devMiddle.waitUntilValid(() => {
-         const bs = browserSync.create();
+        const bs = browserSync.create();
         bs.init({
             proxy: {
                 target: `http://localhost:${port}`,
@@ -57,7 +58,7 @@ const serverConfig = require('../webpack5/webpack.server.config');
                  }
              })
 
-             handleServer(server)
+            handleServer(server)
             server.stderr = process.stderr
             process.on('exit', () => {
                 server.kill('SIGTERM')

@@ -16,8 +16,8 @@ module.exports  =smp.wrap({
     entry: {
         client: [
             'babel-polyfill',
-            // 'react-hot-loader/patch',
-            // 'webpack-hot-middleware/client',
+            'react-hot-loader/patch',
+            //'webpack-hot-middleware/client',
             './src/express.js',
         ]
     },

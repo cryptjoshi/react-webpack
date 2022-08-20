@@ -1,5 +1,5 @@
 import React from 'react';
-import Home from './Home';
+import Home from './home_';
 ///import fetch from '../../core/fetch';
 //import HomeLayout from '../../components/Layout/HomeLayout';
 

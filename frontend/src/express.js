@@ -5,8 +5,10 @@ import express from "express";
 import compression from "compression";
 import UniversalRouter from 'universal-router'
 import UniversalRouterSync from 'universal-router/sync';
+import { renderToStringWithData } from "@apollo/client/react/ssr";
 import PrettyError from 'pretty-error';
 import errorPageStyle from './routes/error/ErrorPage.css';
+import assets from './assets.json'; 
 import routes from "./routes"
 const app = express()
 app.use(compression());
@@ -28,79 +30,71 @@ app.use(function (req, res, next) {
 if (__DEV__) {
     app.enable('trust proxy');
   }
-//app.use(express.static(config.output.path));
-
- const context = {
-    insertCss: (...styles) => {
-        // eslint-disable-next-line no-underscore-dangle
-        styles.forEach(style => css.add(style._getCss()));
-      },
-      store: {
-        subscribe:{},
-        dispatch:{},
-        getState:{}
-      },
-      client: {}
- }
-
  
-const locale = "en"
-// const render = () =>{
-//     res.status(200);
-//     res.send(`<!doctype html>${ReactDOM.renderToStaticMarkup(<Html {...data}/>)}`);
-  
-// }
 app.get('*', async (req, res, next) => {
     try 
     { 
         const locale = "en"
         const css = new Set();
+        const context = {
+          insertCss: (...styles) => {
+              // eslint-disable-next-line no-underscore-dangle
+              styles.forEach(style => css.add(style._getCss()));
+            },
+            store: {
+              subscribe:{},
+              dispatch:{},
+              getState:{}
+            },
+            client: {}
+       }
+      
+     
+        
         const router = new UniversalRouterSync(routes,{...context,  path: req.path,
           query: req.query,
           pathname: req.path,
           locale})
         const result = await router.resolve({path:req.path,pathname:req.path})
+        
+        if (result.redirect) {
+          res.redirect(result.status || 302, result.redirect);
+          return;
+        }
+        
+        const data = {...result}
+        data.children = await renderToStringWithData(<App context={context}>{result.component}</App>);
+        data.styles = [
+          { id: 'css', cssText: [...css].join('') },
+        ];
+        data.scripts = [
+         // client.js
+        ];
       
-    //     if (result.redirect) {
-    //       res.redirect(result.status || 302, result.redirect);
-    //       return;
-    //     }
-    //     const data = {...result}
-    //     data.children = await renderToStringWithData(<App context={context}>{result.component}</App>);
-    //     data.styles = [
-    //       { id: 'css', cssText: [...css].join('') },
-    //     ];
-    //     data.scripts = [
-    //      // client.js
-    //     ];
-      
-    //     if (result.chunks) {
-    //       data.scripts.push(...route.chunks.map(chunk => assets[chunk].js));
-    //     }
-    //    // data.scripts.push(assets.client.js);
+        if (result.chunks) {
+          data.scripts.push(...route.chunks.map(chunk => assets[chunk].js));
+        }
+       data.scripts.push(assets.client.js);
     
-    //     data.lang = locale;
-<<<<<<< Updated upstream
+       data.lang = locale
     
-    //     const html = ReactDOM.renderToStaticMarkup(<Html {...data} />);
-    //     res.status(200);
-    //     res.send(`<!doctype html>${html}`);
-=======
+        // const html = ReactDOM.renderToStaticMarkup(<Html {...data} />);
+        // res.status(200);
+        // res.send(`<!doctype html>${html}`);
       //  const data = {
       //   title:"React Webpack 5 SSR",
       //   description:"React Web Template"
       //  }
 
-      if (module.hot) {
-        console.log('HERE-0');
-       module.hot.accept('./App', () => {
-         console.log('HERE-1');
-       });
-      }
+      //if (module.hot) {
+      //  console.log('HERE-0');
+      //  module.hot.accept('./App', () => {
+      //    console.log('HERE-1');
+      //  });
+      //}
          const html = ReactDOM.renderToStaticMarkup(<Html {...data} />);
          res.status(200);
-         res.send(`<!doctype html>${html}`);
->>>>>>> Stashed changes
+         res.send(`<!doctype html>${html}`)
       }
       catch(err) {
         next(err);
